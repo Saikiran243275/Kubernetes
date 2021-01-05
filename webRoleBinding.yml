@@ -1,0 +1,13 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: web-user-full-access
+  namespace: web
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: web-user-full-access
+subjects:
+- kind: Group
+  namespace: web
+  name: f42c39b3-646f-400d-962f-525b5b599376

@@ -1,0 +1,90 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: reader
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["get", "watch", "list"]
+
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "watch", "list"]
+  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: writer
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+  
+---
+#Rolebindings(namespaced) for api users. 
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: web-user-api-read-access
+  namespace: api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: reader
+subjects:
+- kind: Group
+  namespace: api
+  name: f42c39b3-646f-400d-962f-525b5b599376
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: web-user-web-write-access
+  namespace: web
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: writer
+subjects:
+- kind: Group
+  namespace: web
+  name: f42c39b3-646f-400d-962f-525b5b599376
+
+
+---
+#Rolebindings(namespaced) for web users. 
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: api-user-web-read-access
+  namespace: web
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: reader
+subjects:
+- kind: Group
+  namespace: web
+  name: ac09e94d-73a3-4730-aeaa-07810ae3c4f3
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: api-user-api-write-access
+  namespace: api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: writer
+subjects:
+- kind: Group
+  namespace: api
+  name: ac09e94d-73a3-4730-aeaa-07810ae3c4f3
+

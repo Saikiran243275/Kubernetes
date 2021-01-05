@@ -1,0 +1,62 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "tripviewer"
+  namespace: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tripviewer
+  template:
+    metadata:
+      labels:
+        app: tripviewer 
+    spec:
+      containers:
+        - name: "tripviewer"
+          image: "testmd.azurecr.io/tripinsights/tripviewer:latest"
+          ports:
+          - containerPort: 80
+          env:
+            - name: SQL_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqldb
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqlpassword
+            - name: SQL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqlserver
+            - name: SQL_USER
+              valueFrom: 
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqluser
+            - name: USERPROFILE_API_ENDPOINT
+              value: "http://userprofile.api"
+            - name: trips_API_ENDPOINT
+              value:  "http://trips.api"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: "tripviewer"
+    namespace : web
+    labels:
+        app: "tripviewer"
+spec:
+    type: ClusterIP
+    ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+    selector:
+        app: "tripviewer"

@@ -1,0 +1,64 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "userprofile"
+  namespace: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userprofile
+  template:
+    metadata:
+      labels:
+        app: userprofile 
+    spec:
+      containers:
+        - name: "userprofile"
+          image: "testmd.azurecr.io/tripinsights/userprofile:latest"
+          ports:
+          - containerPort: 80
+          env:
+            - name: SQL_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqldb
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqlpassword
+            - name: SQL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqlserver
+            - name: SQL_USER
+              valueFrom: 
+                secretKeyRef:
+                  name: db-secrets
+                  key: sqluser
+          readinessProbe:
+            httpGet:
+              path: /api/user/healthcheck
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: "userprofile"
+    namespace: api
+    labels:
+        app: "userprofile"
+spec:
+    type: ClusterIP
+    ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+    selector:
+        app: "userprofile"
