@@ -6,7 +6,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: web-user-full-access
+  name: web1-user-full-access
 subjects:
 - kind: Group
   namespace: web
